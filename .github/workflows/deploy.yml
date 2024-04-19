@@ -1,0 +1,36 @@
+name: Deploy Next.js App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      
+      - name: Install Node.js and npm
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          
+      - name: Install Dependencies
+        run: npm install
+      
+      - name: Build Next.js App
+        run: npm run build
+      
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /path/to/your/app
+            git pull origin main
+            pm2 restart your-app-name
